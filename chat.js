@@ -178,4 +178,4 @@ export default async function handler(req, res) {
 }
 
 
-Once you save this file, **all three files will be complete**, and you can proceed with setting your **`GROQ_API_KEY`** in Vercel and deploying! You are very close!
+
