@@ -1,9 +1,9 @@
-// File 3/3: api/chat.js
+      // File 3/3: api/chat.js
 // Vercel Serverless Function (Backend) updated for Google Gemini API
+// This code contains the fix for the "Invalid JSON payload received: Unknown name 'config'" error.
 // 
 import axios from 'axios';
 
-// --- Environment Variable Change ---
 // The key is now available as GEMINI_API_KEY from the Vercel environment.
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
@@ -91,14 +91,14 @@ class DisciplinedCreatorAgent {
     return { ...analysis, systemGoal, structureHint, ...baseContext };
   }
 
-
-  // --- API Call Changed to Google Gemini API ---
+  // --- API Call Changed to Google Gemini API (Corrected structure) ---
   async #callAIModel(plan) {
     if (!GEMINI_API_KEY) {
       return 'System Failure: GEMINI API key is not set. Cannot call external model.';
     }
 
     // --- Gemini API Endpoint ---
+    // Using gemini-2.5-flash for speed and cost-effectiveness
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
     // --- Gemini System Instruction ---
@@ -115,25 +115,38 @@ class DisciplinedCreatorAgent {
       Your response MUST adhere strictly to this structure: ${plan.structureHint}
     `;
 
+    // 🚀 CORRECTED REQUEST BODY (Using generation_config and system_instruction at the top level) 🚀
     const requestBody = {
+      // System Instruction goes at the top level (as requested by the REST API)
+      system_instruction: systemInstruction.trim(), 
+      
+      // Contents array is correct
       contents: [{ role: 'user', parts: [{ text: `User input: "${plan.text}"` }] }],
-      config: {
-        systemInstruction: systemInstruction,
+      
+      // Generation Config parameters (like temperature) go at the top level, inside 'generation_config'
+      generation_config: { 
         temperature: 0.2 // Lower temperature for a more consistent, disciplined persona
       }
     };
+    // -------------------------------------------------------------------------------------------------
 
     try {
       const response = await axios.post(
         endpoint,
-        requestBody,
+        requestBody, // Sends the corrected body
         {
           headers: {
             'Content-Type': 'application/json'
-            // No Authorization header needed for Gemini when key is in URL
           }
         }
       );
+
+      // Check for a block reason in the response
+      const candidates = response.data?.candidates;
+      if (candidates && candidates.length > 0 && candidates[0].finishReason === 'SAFETY') {
+          return "I cannot respond to that request, as it violates my core principle of calm contribution and adherence to safety guidelines.";
+      }
+
 
       return response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Error: No valid response content from AI model.';
     } catch (err) {
@@ -154,7 +167,6 @@ export default async function handler(req, res) {
   
   // 2. Enforce API Key
   if (!GEMINI_API_KEY) {
-    // Error check is updated for the new key name
     return res.status(500).json({ 
         error: 'Server Error: GEMINI_API_KEY is not set in Vercel Environment Variables. Please set the key from Google AI Studio.' 
     });
@@ -178,5 +190,4 @@ export default async function handler(req, res) {
     console.error('API Handler Error:', error);
     res.status(500).json({ error: 'Internal Server Error during Agent processing.' });
   }
-}
-
+      }
