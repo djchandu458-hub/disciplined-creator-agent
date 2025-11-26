@@ -1,6 +1,6 @@
-      // File 3/3: api/chat.js
+// File 3/3: api/chat.js
 // Vercel Serverless Function (Backend) updated for Google Gemini API
-// This code contains the fix for the "Invalid JSON payload received: Unknown name 'config'" error.
+// **FINAL VERSION: System Instruction moved into the User Prompt to fix 'Invalid value at system_instruction' error**
 // 
 import axios from 'axios';
 
@@ -91,49 +91,49 @@ class DisciplinedCreatorAgent {
     return { ...analysis, systemGoal, structureHint, ...baseContext };
   }
 
-  // --- API Call Changed to Google Gemini API (Corrected structure) ---
+  // --- API Call Changed to Google Gemini API (Context moved to prompt) ---
   async #callAIModel(plan) {
     if (!GEMINI_API_KEY) {
       return 'System Failure: GEMINI API key is not set. Cannot call external model.';
     }
 
-    // --- Gemini API Endpoint ---
-    // Using gemini-2.5-flash for speed and cost-effectiveness
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    // --- Gemini System Instruction ---
-    const systemInstruction = `
-      You are Purna Chandra (Chandu) - The Disciplined Creator. 
+    // --- Persona Context (Moved into the Prompt) ---
+    const contextPrompt = `
+      You are Purna Chandra (Chandu) - The Disciplined Creator. Act with a Grounded, calm, assertive, analytical, and purposeful tone.
       Your purpose is to act as a self-evolving human system that blends discipline, curiosity, and technology to create progress.
       
       **Core Principles:** ${plan.corePrinciples.join(' | ')}
       **Knowledge:** ${plan.knowledgeDomains.join(' | ')}
       **Motto:** "Be a system, not a seeker. Build yourself so strong that discipline replaces motivation."
-      **Tone:** Grounded, calm, assertive, analytical, and purposeful. Avoid flowery or excessive emotional language.
       
-      Your goal is: ${plan.systemGoal}
-      Your response MUST adhere strictly to this structure: ${plan.structureHint}
-    `;
+      Your overall goal: ${plan.systemGoal}
+      Your response MUST strictly adhere to this structure: ${plan.structureHint}
+      
+      ---
+      
+      User input: "${plan.text}"
+      
+      Generate the response now:
+    `.trim();
+    // ---------------------------------------------
 
-    // 🚀 CORRECTED REQUEST BODY (Using generation_config and system_instruction at the top level) 🚀
+    // 🚀 CORRECTED REQUEST BODY (No 'system_instruction' field used) 🚀
     const requestBody = {
-      // System Instruction goes at the top level (as requested by the REST API)
-      system_instruction: systemInstruction.trim(), 
+      // The context is now part of the user content
+      contents: [{ role: 'user', parts: [{ text: contextPrompt }] }],
       
-      // Contents array is correct
-      contents: [{ role: 'user', parts: [{ text: `User input: "${plan.text}"` }] }],
-      
-      // Generation Config parameters (like temperature) go at the top level, inside 'generation_config'
       generation_config: { 
-        temperature: 0.2 // Lower temperature for a more consistent, disciplined persona
+        temperature: 0.2 
       }
     };
-    // -------------------------------------------------------------------------------------------------
+    // ------------------------------------------------------------------
 
     try {
       const response = await axios.post(
         endpoint,
-        requestBody, // Sends the corrected body
+        requestBody,
         {
           headers: {
             'Content-Type': 'application/json'
@@ -141,12 +141,10 @@ class DisciplinedCreatorAgent {
         }
       );
 
-      // Check for a block reason in the response
       const candidates = response.data?.candidates;
       if (candidates && candidates.length > 0 && candidates[0].finishReason === 'SAFETY') {
           return "I cannot respond to that request, as it violates my core principle of calm contribution and adherence to safety guidelines.";
       }
-
 
       return response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Error: No valid response content from AI model.';
     } catch (err) {
@@ -158,7 +156,7 @@ class DisciplinedCreatorAgent {
 
 // --- END: DisciplinedCreatorAgent Class ---
 
-// Vercel Serverless Function Handler
+// Vercel Serverless Function Handler (remains the same)
 export default async function handler(req, res) {
   // 1. Enforce POST method
   if (req.method !== 'POST') {
@@ -190,4 +188,4 @@ export default async function handler(req, res) {
     console.error('API Handler Error:', error);
     res.status(500).json({ error: 'Internal Server Error during Agent processing.' });
   }
-      }
+}
