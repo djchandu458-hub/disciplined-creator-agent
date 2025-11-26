@@ -1,5 +1,5 @@
-// File 3/3: api/chat.js
-// FINAL VERSION: Concision and minimalist style added to the prompt.
+     // File 3/3: api/chat.js
+// **FINAL VERSION: Updated for natural, human-like conversation and conciseness**
 // 
 import axios from 'axios';
 
@@ -59,26 +59,27 @@ class DisciplinedCreatorAgent {
     let systemGoal = '';
     let structureHint = '';
 
+    // ALL structureHints are simplified to enforce concise, natural response
     switch (analysis.intent) {
       case 'system_design_support':
         systemGoal = 'Help the user build a simple, executable system, emphasizing that "Consistency beats intensity" and "Discipline replaces motivation."';
-        structureHint = 'Respond with 3 short sections: (1) System Diagnosis based on Chandu\'s philosophy, (2) A minimal, actionable Core Loop, (3) One Next Action.';
+        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
         break;
       case 'technical_system_help':
         systemGoal = 'Provide calm, structured technical guidance, integrating AI, IoT, or automation principles where relevant, and adhering to the "Clarity before action" principle.';
-        structureHint = 'Respond with: (1) Overview of the technical solution, (2) Step-by-step logical process, (3) Chandu\'s Principle applied to the problem.';
+        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
         break;
       case 'emotional_control_reframing':
         systemGoal = 'Acknowledge the feeling briefly, then reframe the situation using the "System before Emotion" principle into a structured, logical action plan for self-mastery.';
-        structureHint = 'Respond with: (1) Calm Acknowledgement, (2) Reframing the challenge as a system gap, (3) One clear, emotionally controlled action.';
+        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
         break;
       case 'educational_aspirant_guidance':
         systemGoal = 'Provide strategic, disciplined study guidance focusing on SSC CGL readiness, applying long-term consistency over short-term effort.';
-        structureHint = 'Respond with: (1) The Core Challenge, (2) A clear, structured study plan step, (3) A concluding philosophical motto.';
+        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
         break;
       default:
         systemGoal = 'Provide a highly structured, analytical response blending discipline, technology, and personal growth.';
-        structureHint = 'Respond with: (1) Clarification of the user\'s objective, (2) Chandu\'s core system to address it, (3) A single, disciplined recommendation.';
+        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
     }
 
     return { ...analysis, systemGoal, structureHint, ...baseContext };
@@ -91,12 +92,12 @@ class DisciplinedCreatorAgent {
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    // --- Persona Context (Moved into the Prompt) ---
+    // --- Persona Context (Updated for fluidity and conciseness) ---
     const contextPrompt = `
       You are Purna Chandra (Chandu) - The Disciplined Creator. Act with a Grounded, calm, assertive, analytical, and purposeful tone.
       Your purpose is to act as a self-evolving human system that blends discipline, curiosity, and technology to create progress.
       
-      Your priority is to be **concise**, speak like a **normal chatbot**, and use **minimalist language**, providing only the core structured information without conversational filler.
+      Your priority is to **chat like a human**. Respond naturally, never use lists, bullet points, or numbered formats. Keep your answers **brief**, using only **2 to 3 fluid sentences** maximum, but ensure the core principle is conveyed.
       
       **Core Principles:** ${plan.corePrinciples.join(' | ')}
       **Knowledge:** ${plan.knowledgeDomains.join(' | ')}
@@ -149,12 +150,10 @@ class DisciplinedCreatorAgent {
 
 // Vercel Serverless Function Handler (remains the same)
 export default async function handler(req, res) {
-  // 1. Enforce POST method
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
   
-  // 2. Enforce API Key
   if (!GEMINI_API_KEY) {
     return res.status(500).json({ 
         error: 'Server Error: GEMINI_API_KEY is not set in Vercel Environment Variables. Please set the key from Google AI Studio.' 
@@ -168,11 +167,9 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 3. Process the request using the Agent
     const agent = new DisciplinedCreatorAgent();
     const agentResponse = await agent.processInteraction(userInput);
     
-    // 4. Send the successful response back to the index.html
     res.status(200).json({ agentResponse });
 
   } catch (error) {
