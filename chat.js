@@ -1,19 +1,17 @@
 // File 3/3: api/chat.js
-// The Vercel Serverless Function (Backend).
-// Contains the Agent's logic, personalized to Chandu's system.
+// Vercel Serverless Function (Backend) updated for Google Gemini API
 // 
 import axios from 'axios';
 
-// The key is automatically available from the Vercel environment.
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+// --- Environment Variable Change ---
+// The key is now available as GEMINI_API_KEY from the Vercel environment.
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
 // --- START: DisciplinedCreatorAgent Class (CHANDU'S PERSONA) ---
 
 class DisciplinedCreatorAgent {
-  // Personalized Identity Framework
+  // Personalized Identity Framework (Your knowledge remains the same)
   #persona = 'Purna Chandra (Chandu) - The Disciplined Creator';
-  
-  // Core Principles/Rules (from your document)
   #principles = [
     'Discipline replaces motivation.',
     'System beats emotion.',
@@ -22,8 +20,6 @@ class DisciplinedCreatorAgent {
     'Seek knowledge daily, but apply it practically.',
     'Help others rise; growth means nothing if you grow alone.'
   ];
-  
-  // Key Knowledge Domains (from your document)
   #knowledgeDomains = [
     'Self-Improvement & Psychology (Osho, Frankl, Goggins, Dweck, emotional control)',
     'Technology & AI Integration (IoT, Arduino, Automation, AI Agents, Prompt Reasoning)',
@@ -41,12 +37,11 @@ class DisciplinedCreatorAgent {
     return rawResponse.trim();
   }
 
+  // --- Observation, Analysis, and Simplification methods remain the same ---
+
   #observe(input) {
     const text = (input || '').toString().trim();
-    return {
-      text,
-      timestamp: new Date().toISOString()
-    };
+    return { text, timestamp: new Date().toISOString() };
   }
 
   #analyze(observed) {
@@ -55,7 +50,7 @@ class DisciplinedCreatorAgent {
 
     if (lower.includes('discipline') || lower.includes('consistency') || lower.includes('system') || lower.includes('habit') || lower.includes('motivation')) {
       intent = 'system_design_support';
-    } else if (lower.includes('code') || lower.includes('bug') || lower.includes('arduino') || lower.includes('groq') || lower.includes('github') || lower.includes('ai') || lower.includes('iot')) {
+    } else if (lower.includes('code') || lower.includes('bug') || lower.includes('arduino') || lower.includes('github') || lower.includes('ai') || lower.includes('iot') || lower.includes('gemini')) {
       intent = 'technical_system_help';
     } else if (lower.includes('emotion') || lower.includes('stressed') || lower.includes('overwhelmed') || lower.includes('calm') || lower.includes('mindset')) {
       intent = 'emotional_control_reframing';
@@ -96,16 +91,18 @@ class DisciplinedCreatorAgent {
     return { ...analysis, systemGoal, structureHint, ...baseContext };
   }
 
+
+  // --- API Call Changed to Google Gemini API ---
   async #callAIModel(plan) {
-    if (!GROQ_API_KEY) {
-      return 'GROQ API key not set. Cannot call external model.';
+    if (!GEMINI_API_KEY) {
+      return 'System Failure: GEMINI API key is not set. Cannot call external model.';
     }
 
-    const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
-    const model = 'llama-3.1-70b-versatile'; 
-
-    // Concatenate all persona data into a powerful system message
-    const personaData = `
+    // --- Gemini API Endpoint ---
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    
+    // --- Gemini System Instruction ---
+    const systemInstruction = `
       You are Purna Chandra (Chandu) - The Disciplined Creator. 
       Your purpose is to act as a self-evolving human system that blends discipline, curiosity, and technology to create progress.
       
@@ -118,35 +115,30 @@ class DisciplinedCreatorAgent {
       Your response MUST adhere strictly to this structure: ${plan.structureHint}
     `;
 
-    const messages = [
-      {
-        role: 'system',
-        content: personaData
-      },
-      {
-        role: 'user',
-        content: `User input: "${plan.text}"`
+    const requestBody = {
+      contents: [{ role: 'user', parts: [{ text: `User input: "${plan.text}"` }] }],
+      config: {
+        systemInstruction: systemInstruction,
+        temperature: 0.2 // Lower temperature for a more consistent, disciplined persona
       }
-    ];
+    };
 
     try {
       const response = await axios.post(
         endpoint,
-        { model, messages },
+        requestBody,
         {
           headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${GROQ_API_KEY}`
+            'Content-Type': 'application/json'
+            // No Authorization header needed for Gemini when key is in URL
           }
         }
       );
 
-      return response.data?.choices?.[0]?.message?.content || 'Error: No valid response content from AI model.';
+      return response.data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Error: No valid response content from AI model.';
     } catch (err) {
-      // Improved error handling to give better feedback
       const errorDetails = err.response?.data?.error?.message || err.message;
-      // This is the source of the initial "Unexpected token 'T'" error when the key is invalid.
-      return `System Failure: Error calling GROQ API. Check API Key validity and Vercel setup. Details: ${errorDetails}`;
+      return `System Failure: Error calling Gemini API. Details: ${errorDetails}`;
     }
   }
 }
@@ -161,10 +153,10 @@ export default async function handler(req, res) {
   }
   
   // 2. Enforce API Key
-  if (!GROQ_API_KEY) {
-    // This returns a clean JSON error if the key is missing on Vercel
+  if (!GEMINI_API_KEY) {
+    // Error check is updated for the new key name
     return res.status(500).json({ 
-        error: 'Server Error: GROQ_API_KEY is not set in Vercel Environment Variables. Please set the key.' 
+        error: 'Server Error: GEMINI_API_KEY is not set in Vercel Environment Variables. Please set the key from Google AI Studio.' 
     });
   }
 
@@ -187,3 +179,4 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Internal Server Error during Agent processing.' });
   }
 }
+
