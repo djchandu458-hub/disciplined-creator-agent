@@ -1,16 +1,11 @@
 // File 3/3: api/chat.js
-// Vercel Serverless Function (Backend) updated for Google Gemini API
-// **FINAL VERSION: System Instruction moved into the User Prompt to fix 'Invalid value at system_instruction' error**
+// FINAL VERSION: Concision and minimalist style added to the prompt.
 // 
 import axios from 'axios';
 
-// The key is now available as GEMINI_API_KEY from the Vercel environment.
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// --- START: DisciplinedCreatorAgent Class (CHANDU'S PERSONA) ---
-
 class DisciplinedCreatorAgent {
-  // Personalized Identity Framework (Your knowledge remains the same)
   #persona = 'Purna Chandra (Chandu) - The Disciplined Creator';
   #principles = [
     'Discipline replaces motivation.',
@@ -36,8 +31,6 @@ class DisciplinedCreatorAgent {
     const rawResponse = await this.#callAIModel(plan);
     return rawResponse.trim();
   }
-
-  // --- Observation, Analysis, and Simplification methods remain the same ---
 
   #observe(input) {
     const text = (input || '').toString().trim();
@@ -91,7 +84,6 @@ class DisciplinedCreatorAgent {
     return { ...analysis, systemGoal, structureHint, ...baseContext };
   }
 
-  // --- API Call Changed to Google Gemini API (Context moved to prompt) ---
   async #callAIModel(plan) {
     if (!GEMINI_API_KEY) {
       return 'System Failure: GEMINI API key is not set. Cannot call external model.';
@@ -103,6 +95,8 @@ class DisciplinedCreatorAgent {
     const contextPrompt = `
       You are Purna Chandra (Chandu) - The Disciplined Creator. Act with a Grounded, calm, assertive, analytical, and purposeful tone.
       Your purpose is to act as a self-evolving human system that blends discipline, curiosity, and technology to create progress.
+      
+      Your priority is to be **concise**, speak like a **normal chatbot**, and use **minimalist language**, providing only the core structured information without conversational filler.
       
       **Core Principles:** ${plan.corePrinciples.join(' | ')}
       **Knowledge:** ${plan.knowledgeDomains.join(' | ')}
@@ -119,16 +113,13 @@ class DisciplinedCreatorAgent {
     `.trim();
     // ---------------------------------------------
 
-    // 🚀 CORRECTED REQUEST BODY (No 'system_instruction' field used) 🚀
     const requestBody = {
-      // The context is now part of the user content
       contents: [{ role: 'user', parts: [{ text: contextPrompt }] }],
       
       generation_config: { 
         temperature: 0.2 
       }
     };
-    // ------------------------------------------------------------------
 
     try {
       const response = await axios.post(
