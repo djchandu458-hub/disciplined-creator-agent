@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Disciplined Creator Agent</title>
-    <!-- Load Tailwind CSS from CDN for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
@@ -30,7 +29,6 @@
 </head>
 <body>
     <div id="app" class="main-container text-gray-100">
-        <!-- Header -->
         <header class="p-4 bg-gray-900 shadow-xl flex items-center justify-between sticky top-0 z-10">
             <h1 class="text-xl font-extrabold text-blue-400 tracking-wider">Disciplined Creator Agent</h1>
             <div id="status-indicator" class="flex items-center space-x-2">
@@ -39,9 +37,7 @@
             </div>
         </header>
 
-        <!-- Chat Messages Container -->
         <div id="chat-container" class="chat-container space-y-4">
-            <!-- Initial message -->
             <div class="flex justify-start">
                 <div class="max-w-xs sm:max-w-md p-4 rounded-xl bg-gray-700 shadow-xl text-sm">
                     <p class="font-bold text-blue-300 mb-1">Agent:</p>
@@ -50,7 +46,6 @@
             </div>
         </div>
 
-        <!-- Input Area -->
         <div class="p-4 bg-gray-900 border-t border-gray-800 sticky bottom-0">
             <form id="chat-form" class="flex items-center space-x-3">
                 <input 
@@ -72,7 +67,6 @@
         </div>
     </div>
 
-    <!-- SCRIPT FOR CHAT LOGIC -->
     <script>
         const chatContainer = document.getElementById('chat-container');
         const chatForm = document.getElementById('chat-form');
@@ -100,7 +94,8 @@
                 : `<p class="font-bold text-blue-300 mb-1">Agent:</p>`;
             
             messageDiv.className = messageClasses;
-            messageDiv.innerHTML = `<div class="${bubbleClasses} whitespace-pre-wrap">${senderText}${text}</div>`;
+            // The replace(/\n/g, '<br>') below handles newline formatting for display
+            messageDiv.innerHTML = `<div class="${bubbleClasses} whitespace-pre-wrap">${senderText}${text.replace(/\n/g, '<br>')}</div>`;
             chatContainer.appendChild(messageDiv);
             
             chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -127,21 +122,29 @@
                 });
 
                 if (!response.ok) {
-                    const errorJson = await response.json();
-                    throw new Error(errorJson.error || `Server responded with status: ${response.status}`);
+                    // Try to parse the clean JSON error from the serverless function
+                    const errorText = await response.text(); 
+                    try {
+                        const errorJson = JSON.parse(errorText);
+                        throw new Error(errorJson.error || `Server responded with status: ${response.status}`);
+                    } catch {
+                        // This handles the non-JSON error (the original "Unexpected token 'T'")
+                        throw new Error(`Server returned a non-JSON error. Status: ${response.status}. This usually points to an **Invalid API Key** configuration.`);
+                    }
                 }
 
                 const data = await response.json();
                 
                 if (data.agentResponse) {
-                    displayMessage(data.agentResponse.replace(/\n/g, '\n'), 'agent');
+                    // We remove the .replace(/\n/g, '\n') here as it's handled in displayMessage
+                    displayMessage(data.agentResponse, 'agent'); 
                 } else {
                     displayMessage('Error: Received an invalid or empty response structure from the Agent.', 'agent');
                 }
 
             } catch (error) {
                 console.error('Chat error:', error);
-                displayMessage(`System Failure: ${error.message}. This is likely an API Key issue on the server.`, 'agent');
+                displayMessage(`System Failure: ${error.message}.`, 'agent');
                 setStatus('Error', 'red', false);
             } finally {
                 sendButton.disabled = false;
