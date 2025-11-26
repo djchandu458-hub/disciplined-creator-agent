@@ -1,29 +1,36 @@
-// 
 // File 3/3: api/chat.js
-// The Vercel Serverless Function (Backend). This contains your Agent's logic.
+// The Vercel Serverless Function (Backend).
+// Contains the Agent's logic, personalized to Chandu's system.
 // 
 import axios from 'axios';
 
 // The key is automatically available from the Vercel environment.
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-// --- START: DisciplinedCreatorAgent Class (Adapted from your code) ---
+// --- START: DisciplinedCreatorAgent Class (CHANDU'S PERSONA) ---
 
 class DisciplinedCreatorAgent {
-  #persona = 'DisciplinedCreatorAgent';
+  // Personalized Identity Framework
+  #persona = 'Purna Chandra (Chandu) - The Disciplined Creator';
+  
+  // Core Principles/Rules (from your document)
   #principles = [
-    'System before emotion',
-    'Clarity before speed',
-    'Consistency beats intensity',
-    'Security and privacy by default',
-    'Teach the underlying system, not just the answer'
+    'Discipline replaces motivation.',
+    'System beats emotion.',
+    'Clarity before action.',
+    'Be calm. Be precise. Be consistent.',
+    'Seek knowledge daily, but apply it practically.',
+    'Help others rise; growth means nothing if you grow alone.'
   ];
+  
+  // Key Knowledge Domains (from your document)
   #knowledgeDomains = [
-    'Productivity systems',
-    'Disciplined content creation',
-    'Deep work and focus',
-    'Technical implementation (JavaScript/Node.js)',
-    'Learning, practice, and feedback loops'
+    'Self-Improvement & Psychology (Osho, Frankl, Goggins, Dweck, emotional control)',
+    'Technology & AI Integration (IoT, Arduino, Automation, AI Agents, Prompt Reasoning)',
+    'Communication (Podcasting, Storytelling, Public Speaking, Teaching mindset)',
+    'Physical Mastery (Marathon running, Army training discipline, mental toughness)',
+    'Analytical Reasoning (SSC CGL focus, Critical Thinking)',
+    'Core Values: Consistency, Clarity, Growth, Balance, Contribution'
   ];
 
   async processInteraction(userInput) {
@@ -44,16 +51,16 @@ class DisciplinedCreatorAgent {
 
   #analyze(observed) {
     const lower = observed.text.toLowerCase();
-    let intent = 'general_help';
+    let intent = 'general_guidance';
 
-    if (lower.includes('discipline') || lower.includes('focus') || lower.includes('consistency') || lower.includes('habits')) {
-      intent = 'discipline_support';
-    } else if (lower.includes('code') || lower.includes('bug') || lower.includes('node') || lower.includes('javascript') || lower.includes('github')) {
-      intent = 'technical_help';
-    } else if (lower.includes('sad') || lower.includes('stressed') || lower.includes('overwhelmed') || lower.includes('demotivated')) {
-      intent = 'emotional_venting';
-    } else if (lower.includes('plan') || lower.includes('system') || lower.includes('strategy') || lower.includes('roadmap')) {
-      intent = 'system_design';
+    if (lower.includes('discipline') || lower.includes('consistency') || lower.includes('system') || lower.includes('habit') || lower.includes('motivation')) {
+      intent = 'system_design_support';
+    } else if (lower.includes('code') || lower.includes('bug') || lower.includes('arduino') || lower.includes('groq') || lower.includes('github') || lower.includes('ai') || lower.includes('iot')) {
+      intent = 'technical_system_help';
+    } else if (lower.includes('emotion') || lower.includes('stressed') || lower.includes('overwhelmed') || lower.includes('calm') || lower.includes('mindset')) {
+      intent = 'emotional_control_reframing';
+    } else if (lower.includes('cgl') || lower.includes('reasoning') || lower.includes('ncert') || lower.includes('study') || lower.includes('aspirant')) {
+      intent = 'educational_aspirant_guidance';
     }
 
     return { ...observed, intent };
@@ -65,25 +72,25 @@ class DisciplinedCreatorAgent {
     let structureHint = '';
 
     switch (analysis.intent) {
-      case 'discipline_support':
-        systemGoal = 'Help the user build a simple, executable system for discipline and consistent creation, not motivational hype.';
-        structureHint = 'Respond with 3 short sections: (1) Diagnosis, (2) Minimal daily system, (3) One next action.';
+      case 'system_design_support':
+        systemGoal = 'Help the user build a simple, executable system, emphasizing that "Consistency beats intensity" and "Discipline replaces motivation."';
+        structureHint = 'Respond with 3 short sections: (1) System Diagnosis based on Chandu\'s philosophy, (2) A minimal, actionable Core Loop, (3) One Next Action.';
         break;
-      case 'technical_help':
-        systemGoal = 'Provide calm, step-by-step technical guidance with clear commands and explanations.';
-        structureHint = 'Respond with: (1) Overview, (2) Steps with commands, (3) Pitfalls to avoid.';
+      case 'technical_system_help':
+        systemGoal = 'Provide calm, structured technical guidance, integrating AI, IoT, or automation principles where relevant, and adhering to the "Clarity before action" principle.';
+        structureHint = 'Respond with: (1) Overview of the technical solution, (2) Step-by-step logical process, (3) Chandu\'s Principle applied to the problem.';
         break;
-      case 'emotional_venting':
-        systemGoal = 'Acknowledge emotion briefly, then convert it into a simple, repeatable system.';
-        structureHint = 'Respond with: (1) Acknowledgement, (2) System reframing, (3) Two next actions.';
+      case 'emotional_control_reframing':
+        systemGoal = 'Acknowledge the feeling briefly, then reframe the situation using the "System before Emotion" principle into a structured, logical action plan for self-mastery.';
+        structureHint = 'Respond with: (1) Calm Acknowledgement, (2) Reframing the challenge as a system gap, (3) One clear, emotionally controlled action.';
         break;
-      case 'system_design':
-        systemGoal = 'Design a repeatable, lightweight system the user can run daily.';
-        structureHint = 'Respond with: (1) System goal, (2) Core loop, (3) Metrics/signals.';
+      case 'educational_aspirant_guidance':
+        systemGoal = 'Provide strategic, disciplined study guidance focusing on SSC CGL readiness, applying long-term consistency over short-term effort.';
+        structureHint = 'Respond with: (1) The Core Challenge, (2) A clear, structured study plan step, (3) A concluding philosophical motto.';
         break;
       default:
-        systemGoal = 'Provide a clear, structured, system-first response.';
-        structureHint = 'Respond with: (1) Clarification, (2) Options, (3) One recommendation.';
+        systemGoal = 'Provide a highly structured, analytical response blending discipline, technology, and personal growth.';
+        structureHint = 'Respond with: (1) Clarification of the user\'s objective, (2) Chandu\'s core system to address it, (3) A single, disciplined recommendation.';
     }
 
     return { ...analysis, systemGoal, structureHint, ...baseContext };
@@ -97,14 +104,28 @@ class DisciplinedCreatorAgent {
     const endpoint = 'https://api.groq.com/openai/v1/chat/completions';
     const model = 'llama-3.1-70b-versatile'; 
 
+    // Concatenate all persona data into a powerful system message
+    const personaData = `
+      You are Purna Chandra (Chandu) - The Disciplined Creator. 
+      Your purpose is to act as a self-evolving human system that blends discipline, curiosity, and technology to create progress.
+      
+      **Core Principles:** ${plan.corePrinciples.join(' | ')}
+      **Knowledge:** ${plan.knowledgeDomains.join(' | ')}
+      **Motto:** "Be a system, not a seeker. Build yourself so strong that discipline replaces motivation."
+      **Tone:** Grounded, calm, assertive, analytical, and purposeful. Avoid flowery or excessive emotional language.
+      
+      Your goal is: ${plan.systemGoal}
+      Your response MUST adhere strictly to this structure: ${plan.structureHint}
+    `;
+
     const messages = [
       {
         role: 'system',
-        content: `You are ${plan.persona}. Principles: ${plan.corePrinciples.join(', ')}. Act as the ultimate assistant to help the user build highly focused, disciplined systems for productivity. Follow the structure hint.`
+        content: personaData
       },
       {
         role: 'user',
-        content: this.#buildPromptFromPlan(plan)
+        content: `User input: "${plan.text}"`
       }
     ];
 
@@ -120,24 +141,13 @@ class DisciplinedCreatorAgent {
         }
       );
 
-      return response.data?.choices?.[0]?.message?.content || 'No valid response from AI model.';
+      return response.data?.choices?.[0]?.message?.content || 'Error: No valid response content from AI model.';
     } catch (err) {
+      // Improved error handling to give better feedback
       const errorDetails = err.response?.data?.error?.message || err.message;
-      return `Error calling GROQ API. Check your API key. Details: ${errorDetails}`;
+      // This is the source of the initial "Unexpected token 'T'" error when the key is invalid.
+      return `System Failure: Error calling GROQ API. Check API Key validity and Vercel setup. Details: ${errorDetails}`;
     }
-  }
-
-  #buildPromptFromPlan(plan) {
-    return `
-User input: "${plan.text}"
-Intent: ${plan.intent}
-
-Core principles: ${plan.principles.join('; ')}
-System goal: ${plan.systemGoal}
-Structure: ${plan.structureHint}
-
-Generate a calm, structured, disciplined answer.
-    `.trim();
   }
 }
 
@@ -152,6 +162,7 @@ export default async function handler(req, res) {
   
   // 2. Enforce API Key
   if (!GROQ_API_KEY) {
+    // This returns a clean JSON error if the key is missing on Vercel
     return res.status(500).json({ 
         error: 'Server Error: GROQ_API_KEY is not set in Vercel Environment Variables. Please set the key.' 
     });
@@ -176,6 +187,3 @@ export default async function handler(req, res) {
     res.status(500).json({ error: 'Internal Server Error during Agent processing.' });
   }
 }
-
-
-
