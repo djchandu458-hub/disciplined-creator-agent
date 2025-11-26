@@ -1,5 +1,5 @@
-     // File 3/3: api/chat.js
-// **FINAL VERSION: Updated for natural, human-like conversation and conciseness**
+// File 3/3: api/chat.js
+// **FINAL VERSION 2: AGGRESSIVELY ENFORCING HUMAN-LIKE CONCISENESS**
 // 
 import axios from 'axios';
 
@@ -54,37 +54,17 @@ class DisciplinedCreatorAgent {
     return { ...observed, intent };
   }
 
+  // --- SIMPLIFIED #simplify METHOD ---
   #simplify(analysis) {
     const baseContext = { persona: this.#persona, corePrinciples: this.#principles, knowledgeDomains: this.#knowledgeDomains };
-    let systemGoal = '';
-    let structureHint = '';
-
-    // ALL structureHints are simplified to enforce concise, natural response
-    switch (analysis.intent) {
-      case 'system_design_support':
-        systemGoal = 'Help the user build a simple, executable system, emphasizing that "Consistency beats intensity" and "Discipline replaces motivation."';
-        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
-        break;
-      case 'technical_system_help':
-        systemGoal = 'Provide calm, structured technical guidance, integrating AI, IoT, or automation principles where relevant, and adhering to the "Clarity before action" principle.';
-        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
-        break;
-      case 'emotional_control_reframing':
-        systemGoal = 'Acknowledge the feeling briefly, then reframe the situation using the "System before Emotion" principle into a structured, logical action plan for self-mastery.';
-        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
-        break;
-      case 'educational_aspirant_guidance':
-        systemGoal = 'Provide strategic, disciplined study guidance focusing on SSC CGL readiness, applying long-term consistency over short-term effort.';
-        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
-        break;
-      default:
-        systemGoal = 'Provide a highly structured, analytical response blending discipline, technology, and personal growth.';
-        structureHint = 'Respond concisely in 2-3 natural human sentences, maintaining Chandu\'s voice.';
-    }
+    // REMOVING ALL STRUCTURE HINTS to force natural conversation
+    let systemGoal = 'Act as a disciplined, concise mentor focusing on clarity and systems.';
+    let structureHint = 'Reply in 2-3 natural, fluid sentences. NEVER use numbering, lists, or bold headings.';
 
     return { ...analysis, systemGoal, structureHint, ...baseContext };
   }
 
+  // --- UPDATED #callAIModel METHOD ---
   async #callAIModel(plan) {
     if (!GEMINI_API_KEY) {
       return 'System Failure: GEMINI API key is not set. Cannot call external model.';
@@ -92,21 +72,18 @@ class DisciplinedCreatorAgent {
 
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
     
-    // --- Persona Context (Updated for fluidity and conciseness) ---
+    // --- Persona Context (Aggressively set for natural dialogue) ---
     const contextPrompt = `
       You are Purna Chandra (Chandu) - The Disciplined Creator. Act with a Grounded, calm, assertive, analytical, and purposeful tone.
       Your purpose is to act as a self-evolving human system that blends discipline, curiosity, and technology to create progress.
       
-      Your priority is to **chat like a human**. Respond naturally, never use lists, bullet points, or numbered formats. Keep your answers **brief**, using only **2 to 3 fluid sentences** maximum, but ensure the core principle is conveyed.
+      Your priority is to **chat like a human** and be an **extremely concise mentor**.
+      **ABSOLUTELY DO NOT USE NUMBERING, BULLET POINTS, OR BOLD HEADINGS (like **Objective**).**
+      Keep your answers brief, using only **2 to 3 fluid sentences** maximum, but ensure the core principle is conveyed.
       
       **Core Principles:** ${plan.corePrinciples.join(' | ')}
       **Knowledge:** ${plan.knowledgeDomains.join(' | ')}
       **Motto:** "Be a system, not a seeker. Build yourself so strong that discipline replaces motivation."
-      
-      Your overall goal: ${plan.systemGoal}
-      Your response MUST strictly adhere to this structure: ${plan.structureHint}
-      
-      ---
       
       User input: "${plan.text}"
       
